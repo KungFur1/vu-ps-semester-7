@@ -29,7 +29,7 @@ def accuracyFunction(X:np.array, Y:np.array, model):
     return np.sum((np.where(model(X) > 0.5, 1, 0) - Y) == 0) / len(Y)
 
 
-data_csv = pd.read_csv(os.path.join("refined-data", "iris-combined.csv")) # iris-combined.csv # breast-cancer.csv
+data_csv = pd.read_csv(os.path.join("refined-data", "breast-cancer.csv")) # iris-combined.csv # breast-cancer.csv
 
 X = (data_csv.iloc[:, :-1].values).T
 Y = (data_csv.iloc[:,-1].values).T
@@ -54,13 +54,13 @@ testAccuracyFunction = lambda W, b: accuracyFunction(X_test, Y_test, lambda X: m
 trainingSetCostGrad_W = grad(trainingSetCostFunction, 0)
 trainingSetCostGrad_b = grad(trainingSetCostFunction, 1)
 
-learning_rate = 0.2
+learning_rate = 0.5
 
 train_cost_history = []
 test_cost_history = []
 test_accuracy_history = []
 train_accuracy_history = []
-for i in range(10000):
+for i in range(1000):
     W_grad = trainingSetCostGrad_W(W, b)
     b_grad = trainingSetCostGrad_b(W, b)
     W -= W_grad * learning_rate
@@ -84,4 +84,14 @@ visualize_history.plot_iterations(test_accuracy_history)
 
 print(W)
 print(b)
-# NEXT: write document, switch datasets (choose which species to predict), make plots, write document...
+
+# EXTRA
+
+predicted_y = np.where(modelFunction(X, W, b) > 0.5, 1, 0)
+
+output_df = pd.DataFrame({
+    'Actual Y': Y,
+    'Predicted Y': predicted_y.flatten()
+})
+
+output_df.to_csv('pred-vs-actual-cancer.csv', index=False)
