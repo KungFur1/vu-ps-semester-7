@@ -1,6 +1,14 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{float}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily,  % Use a monospaced font
+    frame=single,          % Adds a frame around the code
+    language=Python,       % Specify the language (e.g., Python)
+    keywordstyle=\color{blue},  % Keyword color
+    commentstyle=\color{gray},  % Comment color
+}
 
 \title{Optimization Methods PS s7 Lab 1}
 \author{Joris Plaščinskas}
@@ -10,7 +18,7 @@
 \begin{document}
     \maketitle
     \section{One Dimension Optimization}
-        The goal of this laboratory work is to get familiar with one dimensional optimization methods. I will try to minimize this 4th degree polynomial function: $(\frac{(x^{2} - a)^{2}}{b}) - 1$. In my case: $a=2,b=2$, because my student number is 2016020. I will use 3 different optimization methods and try to compare them in the end.
+        The goal of this laboratory work is to get familiar with one dimensional optimization methods. I will try to minimize this 4th degree polynomial function: $(\frac{(x^{2} - a)^{2}}{b}) - 1$. In my case: $a=2,b=2$, so: $\frac{(x^{2} - 2)^{2}}{2}) - 1$ because my student number is 2016020. I will use 3 different optimization methods and try to compare them in the end.
     \section{Interval Split Method}
         I chose to use 3-point interval split method. The algorithm relies on 5 points: left bound, right bound, left x, middle x, right x. Each iteration the interval is split into 4 equal parts: $I-x_1-x_m-x_2-r$ - here I/r are the left/right bounds. At the start of each iteration $f(x_1), f(x_m), f(x_2)$ are calculated. The algorithm then branches out:
         \begin{itemize}
@@ -18,7 +26,41 @@
             \item If $f(x_2) < f(x_m)$, then $I=x_m$.
             \item Else ($f(x_1) \geq f(x_m)$ and $f(x_2) \geq f(x_m)$), then $I=x_1$ and $r=x_2$.
         \end{itemize}
-        The algorithm is slightly optimized by recycling the $x_1$ or $x_2$ and assigning them to $x_m$ after each iteration.
+        The algorithm is slightly optimized by recycling the $x_1$ or $x_2$ and assigning them to $x_m$ after each iteration. The algorithm implementation in code:
+        \begin{verbatim}
+def intervalMethod(objectiveFunction, I:float, r:float, epsilon:float = 10**-4) -> float:
+    iteration_count = 0
+    # 1
+    x_m = (I + r) / 2
+    L = r - I
+    f_x_m = objectiveFunction(x_m)
+    while L >= epsilon:
+        # 2
+        x_1 = I + L/4
+        x_2 = r - L/4
+        f_x_1 = objectiveFunction(x_1)
+        f_x_2 = objectiveFunction(x_2)
+        # 3
+        if f_x_1 < f_x_m:
+            r = x_m # 3.1
+            x_m = x_1 # 3.2
+            f_x_m = f_x_1
+        # 4
+        elif f_x_2 < f_x_m:
+            I = x_m # 4.1
+            x_m = x_2 # 4.2
+            f_x_m = f_x_2
+        # 5
+        else:
+            I = x_1
+            r = x_2
+        # 6
+        L = r - I
+        # Extra:
+        iteration_count += 1
+        print(f"Completed {iteration_count} iterations. I = {I:.5f}, x_1 = {x_1:.5f}, x_m = {x_m:.5f}, x_2 = {x_2:.5f}, r = {r:.5f} | f(x_m) = {objectiveFunction(x_m):.5f}")
+    return x_m
+        \end{verbatim}
         \subsection*{Results}
             \begin{figure}[H]
                 \centering
@@ -27,7 +69,40 @@
                 \label{fig:ml}
             \end{figure}
     \section{Golden Ratio Search Method}
-        Golden Ratio Search is in principal also an interval split method and is very similar to the previous method. The main difference is that the interval is only split at 2 points and the points are placed at specifically $L * 0.618...$ away from the boundaries, so that they can be recycled after each iteration.
+        Golden Ratio Search is in principal also an interval split method and is very similar to the previous method. The main difference is that the interval is only split at 2 points and the points are placed at specifically $L * 0.618...$ away from the boundaries, so that they can be recycled after each iteration. $\rho = \frac{\sqrt{5} - 1}{2}$, this number is called the golden ratio and it can be found by solving a few equations. Essentially, to find the golden ratio number your self you should setup the equations so that the leftover number x is equals to one of the other x from the new interval. You can see the code that implements golden ratio search method below:
+        \begin{verbatim}
+def goldenRatioSearchMethod(objectiveFunction, I:float, r:float, epsilon:float = 10**-4) -> float:
+    GR = 1/((1 + math.sqrt(5))/2)
+    iteration_count:int = 0
+    # 1
+    L = r - I
+    x_1 = r - GR*L
+    x_2 = I + GR*L
+    f_x_1 = objectiveFunction(x_1)
+    f_x_2 = objectiveFunction(x_2)
+    # 4
+    while L >= epsilon:
+        # 2
+        if f_x_1 > f_x_2:
+            I = x_1
+            L = r - I
+            x_1 = x_2 # GR optimization
+            f_x_1 = f_x_2
+            x_2 = I + GR*L
+            f_x_2 = objectiveFunction(x_2)
+        # 3
+        else:
+            r = x_2
+            L = r - I
+            x_2 = x_1 # GR optimization
+            f_x_2 = f_x_1
+            x_1 = r - GR*L
+            f_x_1 = objectiveFunction(x_1)
+        # Extra:
+        iteration_count += 1
+        print(f"Completed {iteration_count} iterations. I = {I:.5f}, x_1 = {x_1:.5f}, x_2 = {x_2:.5f}, r = {r:.5f} | f(x_1) = {objectiveFunction(x_1):.5f} f(x_2) = {objectiveFunction(x_2):.5f}")
+    return I + L * 0.5
+    \end{verbatim}
         \subsection*{Results}
             \begin{figure}[H]
                 \centering
@@ -36,11 +111,20 @@
                 \label{fig:ml}
             \end{figure}
     \section{Newton's Method}
-        Newton's Method for finding 0's of a function has two steps: on  and then trying to reach 0 of that linear function. Using Newton's Method for optimization is very similar, it
-        \begin{itemize}
-            \item Making a linear approximation of that function at any random $x \in [I,r]$.
-            \item Setting x to the $y=0$ value of that linear approximation and repeating with the new x until step size becomes acceptably small.
-        \end{itemize}
+        Newton's Method for finding 0's of a function has two steps: making a linear approximation of a function and then trying to reach 0 of that linear function: $x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}$ Using Newton's Method for optimization is very similar, but it relies on finding 0's of the derivative of the original function: $x_{n+1} = x_n - \frac{f'(x_n)}{f''(x_n)}$. The first derivative of my function is: $f'(x) = 2x(x^2 - 2)$, second: $f''(x) = 6x^2 - 4$ Here is the implementation in code:
+        \begin{verbatim}
+def newtonsMethod(objectiveFunction, x:float = 5., epsilon:float = 10**-4) -> float:
+    first_derivative = jax.grad(objectiveFunction)
+    second_derivative = jax.grad(first_derivative)
+    iteration_count:int = 0
+    step_size = epsilon + 0.1
+    while step_size > epsilon:
+        step_size = (first_derivative(x)/second_derivative(x))
+        x = x - step_size
+        iteration_count += 1
+        print(f"Completed {iteration_count} iterations. Step size = {step_size:.5f}, x = {x:.5f}, f(x) = {objectiveFunction(x):.5f}, f'(x) = {first_derivative(x):.5f}, f''(x) = {second_derivative(x):.5f}")
+    return x
+    \end{verbatim}
         \subsection*{Results}
             \begin{figure}[H]
                 \centering
@@ -49,7 +133,7 @@
                 \label{fig:ml}
             \end{figure}
     \section{Comparison}
-        All functions managed to reached the same minimum (when rounded to 4th decimal place). The key differences were: iteration count, computations count and code length. Newton's method was around 3 times shorter to code, compared to the other two methods. The count of computing the objective function is the same as iterations count in the Golden Ratio Search method and double the iterations count in Newton's and Interval method's (note: in Newton's method you are computing the first and second derivatives of the objective function, but not the objective function it's self).
+        All functions managed to reach the same minimum (when rounded to 4th decimal place). The key differences were: iteration count, computations count and code length. Newton's method was around 3 times shorter to code, compared to the other two methods. The count of computing the objective function is the same as iterations count in the Golden Ratio Search method and double the iterations count in Newton's and Interval method's (note: in Newton's method you are computing the first and second derivatives of the objective function, but not the objective function it's self).
         \begin{table}[h!]
             \centering
             \begin{tabular}{|c|c|c|c|}
@@ -64,6 +148,7 @@
             \caption{Final results}
         \end{table}
     \section{Plots}
+        Two plots below highlight the entire history of the three methods (red - interval, yellow - golden, blue - newton's). Each point represents where the function was calculated.
         \begin{figure}[H]
             \centering
             \includegraphics[width=1\textwidth]{plot-1.png}

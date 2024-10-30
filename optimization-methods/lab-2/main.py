@@ -2,6 +2,7 @@
 import numpy
 import math
 import visualize
+import one_dimension_optimization
 
 
 # Negative squared volume, assuming total area is equals 1
@@ -33,28 +34,30 @@ def gradient_descent(plot_0, plot_1, step_count=10, learning_rate=1, log=True):
         plot_1 -=grad[1] * learning_rate
 
         if log:
-            print(f"Plot 0: {plot_0}, Plot 1: {plot_1}, Plot 2: {1 - plot_0 - plot_1}, Objective: {objective_function(plot_0, plot_1)}, Grad: {grad}")
+            print(f"i = {i} Plot 0: {plot_0}, Plot 1: {plot_1}, Plot 2: {1 - plot_0 - plot_1}, Objective: {objective_function(plot_0, plot_1)}, Grad: {grad}")
+            if grad.mean() * learning_rate <= 0.0001:
+                print("Small step!")
     
     return history
 
 
-# TODO: Watch Wolfe Condition!
-def steepest_descent(plot_0, plot_1, step_count=10, alpha=1, rho=0.5, c=1e-2, log=True):
+def steepest_descent(plot_0, plot_1, step_count=3, log=True):
     history = []
     for i in range(step_count):
         history.append((plot_0, plot_1))
         grad = objective_gradient_function(plot_0, plot_1)
-        step_direction = -grad/numpy.linalg.norm(grad)
 
-        step_size = alpha
-        while objective_function(plot_0 + step_size * step_direction[0], plot_1 + step_size * step_direction[1]) > objective_function(plot_0, plot_1) - c * step_size * numpy.linalg.norm(grad)**2:
-            step_size *= rho
+        # Find step size
+        one_d_objective = lambda step_size: objective_function(plot_0 - grad[0]*step_size, plot_1 - grad[1]*step_size)
+        step_size = one_dimension_optimization.goldenRatioSearchMethod(one_d_objective, 0, 100)
         
-        plot_0 += step_direction[0] * step_size
-        plot_1 += step_direction[1] * step_size
+        plot_0 -= grad[0] * step_size
+        plot_1 -= grad[1] * step_size
 
         if log:
-            print(f"Plot 0: {plot_0}, Plot 1: {plot_1}, Plot 2: {1 - plot_0 - plot_1}, Objective: {objective_function(plot_0, plot_1)}, Grad: {grad}, Step Size: {step_size}")
+            print(f"i = {i} Plot 0: {plot_0}, Plot 1: {plot_1}, Plot 2: {1 - plot_0 - plot_1}, Objective: {objective_function(plot_0, plot_1)}, Grad: {grad}, Step Size: {step_size}")
+            if grad.mean() * step_size:
+                print("Small step!")
         
     return history
 
@@ -111,15 +114,14 @@ def simplex_search(point_0=(0.2, 0.2), point_1=(0.21,0.2), point_2=(0.205, 0.21)
                 print("Scaling down.")
 
         if log:
-            print(f"Points: {points}, Reset Counter: {reset_counter}")
+            print(f"i = {i} Points: {points}, Reset Counter: {reset_counter}")
         
         history.extend(points)
     
     return history
 
 
-
-# 6
+# 6 ---------
 # x_0_f = objective_function(0, 0)
 # x_0_grad = objective_function(0, 0)
 
@@ -128,13 +130,13 @@ def simplex_search(point_0=(0.2, 0.2), point_1=(0.21,0.2), point_2=(0.205, 0.21)
 
 # x_m_f = objective_function(0.2, 0.2)
 # x_m_grad = objective_function(0.2, 0.2)
+#   ---------
 
 
-# history = gradient_descent(0.01, 0.05) # Test
 
-# history = gradient_descent(0.2, 0.2)
-# history = steepest_descent(0.2, 0.2)
-history = simplex_search()
+# history = gradient_descent(0.2, 0.2, 200)
+history = steepest_descent(0.2, 0.2, step_count=1)
+# history = simplex_search(step_count=200)
 
 # history = gradient_descent(0, 0) # Stays at 0, 0
 # history = gradient_descent(1, 1) # Converges to 1/3
@@ -142,4 +144,10 @@ history = simplex_search()
 # history = steepest_descent(0, 0) # Stays at nan, nan
 # history = steepest_descent(1, 1) # Converges to 1/3
 
+
+# history = gradient_descent(1, 1, learning_rate=2.666666) # Test
+# history = steepest_descent(1.2, 1.2) # Test - Converges from the first iteration
+
 visualize.visualize_2d_function(objective_function, (0,1), (0,1), highlight_points=history)
+
+# With my parameters, I got the best results using steepest descent method. After just 10 iterations the value was already $0.3333337$. Gradient descent after 10 iterations reached a plot 0 value of: $0.281536$. And simplex after 10 iterations: $0.317148$.
