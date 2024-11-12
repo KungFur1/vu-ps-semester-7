@@ -1,0 +1,187 @@
+{
+	"flow_name" : "config-3",
+	"steps" : [
+		{
+			"class" : "weka.knowledgeflow.steps.Loader",
+			"properties" : {
+				"loader" : {
+					"type" : "loader",
+					"class" : "weka.core.converters.ArffLoader",
+					"filePath" : "C:/Development/vu-ps-semester-7/compute-intelligence/lab-3/iris-train.arff",
+					"useRelativePath" : false
+				},
+				"name" : "ArffLoader"
+			},
+			"connections" : {
+				"dataSet" : [
+					"ClassAssigner"
+				]
+			},
+			"coordinates" : "110,127"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Filter",
+			"properties" : {
+				"filter" : {
+					"type" : "optionHandler",
+					"class" : "weka.filters.unsupervised.attribute.ClassAssigner",
+					"options" : "-C last"
+				},
+				"name" : "ClassAssigner"
+			},
+			"connections" : {
+				"dataSet" : [
+					"Remove"
+				]
+			},
+			"coordinates" : "245,127"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Filter",
+			"properties" : {
+				"filter" : {
+					"type" : "optionHandler",
+					"class" : "weka.filters.unsupervised.attribute.Remove",
+					"options" : "-R 3"
+				},
+				"name" : "Remove"
+			},
+			"connections" : {
+				"dataSet" : [
+					"TrainingSetMaker"
+				]
+			},
+			"coordinates" : "396,129"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.TextViewer",
+			"properties" : {
+				"name" : "TextViewer2"
+			},
+			"connections" : {
+			},
+			"coordinates" : "928,372"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Classifier",
+			"properties" : {
+				"classifier" : {
+					"type" : "optionHandler",
+					"class" : "weka.classifiers.functions.MultilayerPerceptron",
+					"options" : "-L 0.2 -M 2.0E-4 -N 500 -V 0 -S 0 -E 20 -H \"2, 1\" -batch-size 10"
+				},
+				"loadClassifierFileName" : "C:/Development/vu-ps-semester-7/compute-intelligence/lab-3/_1_5_MultilayerPerceptron.model",
+				"name" : "MultilayerPerceptron",
+				"resetIncrementalClassifier" : false,
+				"updateIncrementalClassifier" : true
+			},
+			"connections" : {
+				"batchClassifier" : [
+					"PredictionAppender"
+				],
+				"text" : [
+					"TextViewer2"
+				]
+			},
+			"coordinates" : "766,204"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.TextViewer",
+			"properties" : {
+				"name" : "TextViewer3"
+			},
+			"connections" : {
+			},
+			"coordinates" : "1138,232"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.PredictionAppender",
+			"properties" : {
+				"appendProbabilities" : true,
+				"name" : "PredictionAppender"
+			},
+			"connections" : {
+				"testSet" : [
+					"TextViewer3"
+				]
+			},
+			"coordinates" : "927,112"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.TrainingSetMaker",
+			"properties" : {
+				"name" : "TrainingSetMaker"
+			},
+			"connections" : {
+				"trainingSet" : [
+					"MultilayerPerceptron"
+				]
+			},
+			"coordinates" : "534,131"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.TestSetMaker",
+			"properties" : {
+				"name" : "TestSetMaker"
+			},
+			"connections" : {
+				"testSet" : [
+					"MultilayerPerceptron"
+				]
+			},
+			"coordinates" : "542,311"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Loader",
+			"properties" : {
+				"loader" : {
+					"type" : "loader",
+					"class" : "weka.core.converters.ArffLoader",
+					"filePath" : "C:/Development/vu-ps-semester-7/compute-intelligence/lab-3/iris-test.arff",
+					"useRelativePath" : false
+				},
+				"name" : "ArffLoader2"
+			},
+			"connections" : {
+				"dataSet" : [
+					"ClassAssigner2"
+				]
+			},
+			"coordinates" : "113,305"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Filter",
+			"properties" : {
+				"filter" : {
+					"type" : "optionHandler",
+					"class" : "weka.filters.unsupervised.attribute.ClassAssigner",
+					"options" : "-C last"
+				},
+				"name" : "ClassAssigner2"
+			},
+			"connections" : {
+				"dataSet" : [
+					"Remove2"
+				]
+			},
+			"coordinates" : "252,307"
+		},
+		{
+			"class" : "weka.knowledgeflow.steps.Filter",
+			"properties" : {
+				"filter" : {
+					"type" : "optionHandler",
+					"class" : "weka.filters.unsupervised.attribute.Remove",
+					"options" : "-R 3"
+				},
+				"name" : "Remove2"
+			},
+			"connections" : {
+				"dataSet" : [
+					"TestSetMaker"
+				]
+			},
+			"coordinates" : "398,309"
+		}
+	]
+}
