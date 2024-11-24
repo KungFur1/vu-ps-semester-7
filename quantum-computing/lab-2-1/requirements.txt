@@ -1,0 +1,11 @@
+ipykernel
+
+qiskit
+qiskit-ibm-runtime
+pylatexenc
+matplotlib
+qiskit-aer
+scipy
+sympy
+
+numpy==2.0

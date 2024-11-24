@@ -1,0 +1,2 @@
+# print(f"bit string: {bit_string}")
+# print(f"index: {index}, value: {bit_val}")
