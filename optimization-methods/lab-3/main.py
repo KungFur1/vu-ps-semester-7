@@ -61,11 +61,11 @@ def gradient_f_with_restrictions(plot_1, plot_2, plot_3, r=1):
     return grad_x, grad_y, grad_z
 
 
-def gradient_descent(grad_func, objective_func, X, step_count=1500, learning_rate=0.1, log=True):
+def gradient_descent(grad_func, objective_func, X, step_count=50, learning_rate=0.1, log=True):
     plot_1, plot_2, plot_3 = X
     history = []
-    r = 1
-    for y in range(5):
+    r = 50
+    for y in range(10):
         for i in range(step_count):
             history.append(X)
             grad = grad_func(plot_1, plot_2, plot_3, r)
@@ -73,14 +73,14 @@ def gradient_descent(grad_func, objective_func, X, step_count=1500, learning_rat
             plot_2 -= grad[1] * learning_rate
             plot_3 -= grad[2] * learning_rate
         if log:
-            print(f"iteration = {i * step_count} X: {plot_1}, {plot_2}, {plot_3}. Objective: {objective_func(plot_1, plot_2, plot_3)}, bauda = {(g_1(plot_1, plot_2, plot_3)**2 + 
+            print(f"iteration = {y * step_count} X: {plot_1}, {plot_2}, {plot_3}. Objective: {objective_func(plot_1, plot_2, plot_3)}, bauda = {(g_1(plot_1, plot_2, plot_3)**2 + 
                                                 max(0, h_1(plot_1, plot_2, plot_3))**2 + 
                                                 max(0, h_2(plot_1, plot_2, plot_3))**2 + 
                                                 max(0, h_3(plot_1, plot_2, plot_3))**2)}")
         r /= 2
         learning_rate /= 2 #(1/r) * 1/r kart 
 
-        print(f"r = {r}")
+        # print(f"r = {r}")
 
     return history
 
@@ -89,7 +89,12 @@ X_0 = (0, 0, 0)
 X_1 = (1, 1, 1)
 X_m = (0/10, 2/10, 0/10)
 
+print("X00000")
 gradient_descent(gradient_f_with_restrictions, f_with_restrictions, X_0)
+print("XMMMMM")
+gradient_descent(gradient_f_with_restrictions, f_with_restrictions, X_m)
+print("X11111")
+gradient_descent(gradient_f_with_restrictions, f_with_restrictions, X_1)
 
 
 # print(f"f(0, 0, 0)={f(0, 0, 0)}")

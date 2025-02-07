@@ -135,7 +135,7 @@ def simplex_search(point_0=(0.2, 0.2), point_1=(0.21,0.2), point_2=(0.205, 0.21)
 
 
 # history = gradient_descent(0.2, 0.2, 200)
-history = steepest_descent(0.2, 0.2, step_count=1)
+# history = steepest_descent(0.2, 0.2, step_count=1)
 # history = simplex_search(step_count=200)
 
 # history = gradient_descent(0, 0) # Stays at 0, 0
